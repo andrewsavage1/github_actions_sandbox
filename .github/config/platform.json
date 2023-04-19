@@ -1,0 +1,10 @@
+{
+  "platforms": [
+    "platform"
+  ],
+  "includes": [
+    {
+      "name":"platform_name"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+name: Label Cherry Pick
+
+on:
+  pull_request_target:
+    types:
+      - labeled
+      - closed
+
+jobs:
+  cherry_pick:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target_branch: ['23.lts.1+', '22.lts.1+']
+    if: |
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.merge_commit_sha != null
+    env:
+      # ACCESS_TOKEN: ${{ secrets.CHERRY_PICK_TOKEN }}
+      REPOSITORY: ${{ github.repository }}
+      GITHUB_REF: ${{ github.ref }}
+      MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+    steps:
+      - name: Default RUN_FOR_CURRENT_BRANCH to false
+        run: echo "RUN_FOR_CURRENT_BRANCH=false" >> $GITHUB_ENV
+
+      - name: Set RUN_FOR_CURRENT_BRANCH for closed pull_request
+        if: github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, ${{ format('cp-{0}', matrix.target_branch) }})
+        run: |
+          echo "RUN_FOR_CURRENT_BRANCH=true" >> $GITHUB_ENV
+          echo "${{ github.event.action }}"
+          labels_json="${{ toJson(github.event.pull_request.labels) }}"
+          for label in $(echo "${labels_json}" | jq -r '.[].name'); do
+            echo "Label: $label"
+          done
+
+      - name: Set RUN_FOR_CURRENT_BRANCH for labeled pull_request
+        if: github.event.action == 'labeled' && github.event.label.name == ${{ format('cp-{0}', matrix.target_branch) }}
+          
+        run: |
+          echo "RUN_FOR_CURRENT_BRANCH=true" >> $GITHUB_ENV
+          echo "${{ github.event.action }}"
+          echo "${{ github.event.label.name }}"
+
+      - name: Test environment
+        if: env.RUN_FOR_CURRENT_BRANCH == 'true'
+        run: echo "Running step"
