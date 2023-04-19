@@ -25,23 +25,21 @@ jobs:
         run: echo "RUN_FOR_CURRENT_BRANCH=false" >> $GITHUB_ENV
 
       - name: Set RUN_FOR_CURRENT_BRANCH for closed pull_request
-        if: github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, ${{ format('cp-{0}', matrix.target_branch) }})
+        if: github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, format('cp-{0}', matrix.target_branch))
         run: |
           echo "RUN_FOR_CURRENT_BRANCH=true" >> $GITHUB_ENV
           echo "${{ github.event.action }}"
           labels_json="${{ toJson(github.event.pull_request.labels) }}"
-          for label in $(echo "${labels_json}" | jq -r '.[].name'); do
-            echo "Label: $label"
-          done
+          echo $labels_json
 
-      - name: Set RUN_FOR_CURRENT_BRANCH for labeled pull_request
-        if: github.event.action == 'labeled' && github.event.label.name == ${{ format('cp-{0}', matrix.target_branch) }}
+      # - name: Set RUN_FOR_CURRENT_BRANCH for labeled pull_request
+      #   if: github.event.action == 'labeled' && github.event.label.name == ${{ format('cp-{0}', matrix.target_branch) }}
           
-        run: |
-          echo "RUN_FOR_CURRENT_BRANCH=true" >> $GITHUB_ENV
-          echo "${{ github.event.action }}"
-          echo "${{ github.event.label.name }}"
+      #   run: |
+      #     echo "RUN_FOR_CURRENT_BRANCH=true" >> $GITHUB_ENV
+      #     echo "${{ github.event.action }}"
+      #     echo "${{ github.event.label.name }}"
 
-      - name: Test environment
-        if: env.RUN_FOR_CURRENT_BRANCH == 'true'
-        run: echo "Running step"
+      # - name: Test environment
+      #   if: env.RUN_FOR_CURRENT_BRANCH == 'true'
+      #   run: echo "Running step"
