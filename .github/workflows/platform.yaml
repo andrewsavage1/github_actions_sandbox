@@ -2,7 +2,7 @@ name: platform
 
 on:
   pull_request:
-    types: [ready_for_review, opened, reopened, synchronize, labeled]
+    types: [ready_for_review, opened, reopened, synchronize]
     branches:
       - main
       - feature/*
