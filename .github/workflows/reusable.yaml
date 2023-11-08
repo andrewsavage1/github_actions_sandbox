@@ -105,14 +105,13 @@ jobs:
   on-host-test:
     needs: [initialize, build]
     permissions: {}
-    if: needs.initialize.outputs.on_host_test == 'true'
     runs-on: ubuntu-latest
     name: ${{matrix.name}}_${{matrix.shard}}_test
     strategy:
       fail-fast: false
       matrix:
         platform: ${{ fromJson(needs.initialize.outputs.platforms) }}
-        shard: ${{ fromJson(needs.initialize.outputs.on_host_test_shards) }}
+        shard: [0, 1]
         config: [devel]
         include: ${{ fromJson(needs.initialize.outputs.includes) }}
     env:
@@ -123,4 +122,4 @@ jobs:
       COBALT_BOOTLOADER: ${{needs.initialize.outputs.bootloader}}
     steps:
       - name: Echo
-        run: echo "${{ matrix.platform }}_${{ matrix.config }}"
+        run: echo "${{ matrix.platform }}_${{ matrix.config }} ${{ matrix.shard }}"
