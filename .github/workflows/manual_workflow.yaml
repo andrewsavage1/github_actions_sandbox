@@ -16,6 +16,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Trigger other workflows
         run: |
-          gh workflow run platform --ref ${{ github.event.pull_request.head.sha }}
+          gh workflow run platform --ref ${{ github.event.pull_request.head.ref }}
         env:
           GH_TOKEN: ${{ github.token }}
