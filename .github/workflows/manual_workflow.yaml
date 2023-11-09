@@ -18,13 +18,13 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const pull_number = github.event.pull_request.number;
+            const pull_number = context.payload.pull_request.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const response = await github.rest.checks.listSuitesForRef({
               owner,
               repo,
-              ref: github.event.pull_request.head.sha
+              ref: context.sha
             });
             
             for (const suite of response.data.check_suites) {
