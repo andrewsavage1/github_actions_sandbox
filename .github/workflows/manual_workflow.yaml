@@ -10,12 +10,33 @@ jobs:
     permissions:
       actions: write
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, 'test-label')
+    if: github.event.label.name == 'runtest'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Trigger other workflows
-        run: |
-          gh workflow run platform --ref ${{ github.event.pull_request.head.ref }}
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Rerequest all check suites
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pull_number = github.event.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const response = await github.rest.checks.listSuitesForRef({
+              owner,
+              repo,
+              ref: github.event.pull_request.head.sha
+            });
+            
+            for (const suite of response.data.check_suites) {
+              // Skip app generated suites or rerun only specific ones
+              console.log(suite);
+              if (suite.app.slug !== 'github-actions') continue;
+              
+              console.log(`Rerequesting check suite: ${suite.id}`);
+              await github.rest.checks.rerequestSuite({
+                owner,
+                repo,
+                check_suite_id: suite.id
+              });
+            }
+          github-token: ${{ github.token }}
