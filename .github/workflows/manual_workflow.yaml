@@ -13,3 +13,5 @@ jobs:
       - name: Trigger other workflows
         run: |
           gh workflow run platform --ref ${{ github.event.pull_request.head.sha }}
+        env:
+          GH_TOKEN: ${{ github.token }}
