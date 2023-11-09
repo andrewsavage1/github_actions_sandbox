@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.event.pull_request.labels.*.name, 'test-label')
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Trigger other workflows
         run: |
           gh workflow run platform --ref ${{ github.event.pull_request.head.sha }}
